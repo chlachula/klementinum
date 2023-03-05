@@ -5,9 +5,10 @@ data source https://www.chmi.cz/files/portal/docs/meteo/ok/files/PKLM_pro_portal
 
 The first line with column names was removed
 */
+
 type TempRecord struct {
-	y int
-	m int
-	d int
-	t float32
+	Y int
+	M int
+	D int
+	T float32
 }
