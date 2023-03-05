@@ -7,8 +7,15 @@ import (
 	"log"
 	"math"
 	"net/http"
+
+	k "github.com/chlachula/klementinum"
+	"github.com/chlachula/klementinum/data"
 )
 
+func minMaxString() string {
+	stat := k.TemperatureStatistics(data.TemperatureRecords())
+	return fmt.Sprintf("Min Max %v", stat)
+}
 func makeDodecagon(xs int, ys int, r float64) string {
 	s := ""
 	c1 := `<circle cx="%d" cy="%d" r="%.1f" stroke="yellow" stroke-width="8" fill="none" />`
@@ -63,7 +70,8 @@ func temperatureHandler(w http.ResponseWriter, r *http.Request) {
 </html>`
 	svg1 := `<circle cx="400" cy="400" r="370" stroke="green" stroke-width="40" fill="yellow" />`
 	svg1 = makeDodecagon(400, 400, 200.0)
-	page := fmt.Sprintf(page1, "2022-0815-1028", svg1)
+	minmax := minMaxString()
+	page := fmt.Sprintf(page1, minmax, svg1)
 	fmt.Fprintf(w, page)
 }
 func rootHandler(w http.ResponseWriter, r *http.Request) {
