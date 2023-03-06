@@ -26,3 +26,13 @@ func TestTemperatureStatistics(t *testing.T) {
 	}
 
 }
+func DaysInYearTest(t *testing.T) {
+	a := DaysInYear(1775) == 365
+	b := DaysInYear(1968) == 366
+	c := DaysInYear(2000) == 365
+	d := DaysInYear(2020) == 366
+	if !(a && b && c && d){
+		t.Errorf("DaysInYear() returned wrong days 365 or 366")
+	}
+}
+

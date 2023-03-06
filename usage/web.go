@@ -7,14 +7,40 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 
 	k "github.com/chlachula/klementinum"
 	"github.com/chlachula/klementinum/data"
 )
 
+var tStat k.TStat
+
+func avgTempsString() string {
+	s := ""
+	count := 0
+	var sum float32
+	for i, avgT := range tStat.YearTavg {
+		count += 1
+		sum += avgT
+		year := i + tStat.Year1
+		s += fmt.Sprintf("%d:%.1f ", year, avgT)
+	}
+	a := sum / float32(count)
+	s += fmt.Sprintf("\n<br/><br/>Average temperature %.2f<br/>\n", a)
+	for i, avgT := range tStat.YearTavg {
+		year := i + tStat.Year1
+		delta := avgT - a
+		if delta > 0.0 {
+			s += fmt.Sprintf("<b>%d:%.1f</b> ", year, delta)
+		} else {
+			s += fmt.Sprintf("%d:%.1f ", year, delta)
+		}
+
+	}
+	return s
+}
 func minMaxString() string {
-	stat := k.TemperatureStatistics(data.TemperatureRecords())
-	return fmt.Sprintf("Min Max %v", stat)
+	return fmt.Sprintf("%d years since %d to %d: Min %v Max %v", tStat.YearEnd-tStat.Year1+1, tStat.Year1, tStat.YearEnd, tStat.MinT, tStat.MaxT)
 }
 func makeDodecagon(xs int, ys int, r float64) string {
 	s := ""
@@ -74,8 +100,19 @@ func temperatureHandler(w http.ResponseWriter, r *http.Request) {
 	page := fmt.Sprintf(page1, minmax, svg1)
 	fmt.Fprintf(w, page)
 }
+func exitHandler(w http.ResponseWriter, r *http.Request) {
+	os.Exit(0)
+}
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `<h1>Home<br/><a href="/hello">Hello</a><br/><a href="/temp">Temperature</a></h1>`)
+	fmt.Fprintf(w, `<h1>Home<br/>
+	<a href="/hello">Hello</a><br/>
+	<a href="/temp">Temperature</a><br/>
+	<a href="/years_avg_temps">Average Temperatures</a><br/>
+	<a href="/exit">Exit</a></h1>`)
+}
+func y_avg_tempsHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "<a href=\"/\">Home</a><hr/><h1>Average temperatures</h1>")
+	fmt.Fprintf(w, avgTempsString())
 }
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<a href=\"/\">Home</a><hr/><h1>Hello World!</h1>")
@@ -83,9 +120,12 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	fmt.Println("Start of program")
+	tStat = k.TemperatureStatistics(data.TemperatureRecords())
 
 	//mux := http.NewServeMux()
+	http.HandleFunc("/years_avg_temps", y_avg_tempsHandler)
 	http.HandleFunc("/temp", temperatureHandler)
+	http.HandleFunc("/exit", exitHandler)
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/", rootHandler)
 
