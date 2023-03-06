@@ -113,6 +113,8 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 func y_avg_tempsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<a href=\"/\">Home</a><hr/><h1>Average temperatures</h1>")
 	fmt.Fprintf(w, avgTempsString())
+	fmt.Fprintf(w, k.svgAverage())
+
 }
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<a href=\"/\">Home</a><hr/><h1>Hello World!</h1>")
