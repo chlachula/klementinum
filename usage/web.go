@@ -49,7 +49,7 @@ func avgTempsString() string {
 		s += fmt.Sprintf("%d:%.1f ", year, avgT)
 	}
 	a := sum / float32(count)
-	s += fmt.Sprintf("\n<br/><br/>Average temperature %.2f<br/>\n", a)
+	s += fmt.Sprintf("\n<br/><h2>Average temperature %.2f°C<br/>Relative differences in years %d .. %d</h2><br/>\n", a, tStat.Year1, tStat.YearEnd)
 	for i, avgT := range tStat.YearTavg {
 		year := i + tStat.Year1
 		delta := avgT - a
@@ -88,11 +88,6 @@ func makeDodecagon(xs int, ys int, r float64) string {
 	return s
 }
 func temperatureHandler(w http.ResponseWriter, r *http.Request) {
-	/*	if r.URL.Path != "/hello" {
-			http.Error(w, "404 not found.", http.StatusNotFound)
-			return
-		}
-	*/
 	if r.Method != "GET" {
 		http.Error(w, "Method is not supported.", http.StatusNotFound)
 		return
@@ -102,7 +97,7 @@ func temperatureHandler(w http.ResponseWriter, r *http.Request) {
 	svg1 = `\n<svg width="800" height="800">\n` + makeDodecagon(400, 400, 200.0) + ` \n</svg>\n`
 	minmax := minMaxString()
 	page := fmt.Sprintf(page1, "temperature", "<a href=\"/\">Home</a><hr/>", minmax, svg1)
-	fmt.Fprintf(w, page)
+	fmt.Fprint(w, page)
 }
 
 //go:embed to_embed/img/Klementinum2023-0112-0953-1465-600x800dpi72q40.jpg
@@ -114,7 +109,7 @@ var embededImgDir embed.FS
 func embedHandler(w http.ResponseWriter, r *http.Request) {
 	img := "\n<img src=\"/embeded_single_Klementinum_image\" />"
 	page := fmt.Sprintf(page1, "picture", homeLink, "Klementinum tower in Prague, Czechia", img)
-	fmt.Fprintf(w, page)
+	fmt.Fprint(w, page)
 }
 
 func embededSingleImageHandler(rw http.ResponseWriter, r *http.Request) {
@@ -146,15 +141,14 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		<a href="/temp">Temperature</a><br/>
 		<a href="/years_avg_temps">Average Temperatures</a></h1>
 		`+formExit)
-		fmt.Fprintf(w, page)
+		fmt.Fprint(w, page)
 	}
 }
 func y_avg_tempsHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<a href=\"/\">Home</a><hr/><h1>Average temperatures</h1>")
-	fmt.Fprintf(w, avgTempsString())
-	fmt.Fprintf(w, "<br/>\n")
-	fmt.Fprintf(w, k.SVG_average())
-
+	page := fmt.Sprintf(page1, "averate temperatures", homeLink,
+		fmt.Sprintf("Average temperatures in years %d .. %d", tStat.Year1, tStat.YearEnd),
+		avgTempsString()+"<br/>\n"+k.SVG_average())
+	fmt.Fprint(w, page)
 }
 
 func main() {
