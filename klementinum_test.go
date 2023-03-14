@@ -1,8 +1,9 @@
 package klementinum
 
 import (
-	"github.com/chlachula/klementinum/data"
 	"testing"
+
+	"github.com/chlachula/klementinum/data"
 )
 
 func TestTemperatureStatistics(t *testing.T) {
@@ -18,10 +19,15 @@ func TestTemperatureStatistics(t *testing.T) {
 		{Y: 1775, M: 1, D: 9, T: 4.0},
 	}
 	var want TStat
+	want.Year1 = 1775
+	want.YearEnd = 1775
+	want.YearTavg = make([]float32, 1)
+	want.YearTavg[0] = 6.9 / 365.0
 	want.MinT = data.TempRecord{Y: 1775, M: 1, D: 1, T: -7.0}
 	want.MaxT = data.TempRecord{Y: 1775, M: 1, D: 8, T: 4.1}
 
-	if got := TemperatureStatistics(testData); got != want {
+	//if got := TemperatureStatistics(testData); got != want {
+	if got := TemperatureStatistics(testData); !Equal_TStat(got, want) {
 		t.Errorf("Message() = %v, want %v", got, want)
 	}
 
@@ -31,8 +37,7 @@ func DaysInYearTest(t *testing.T) {
 	b := DaysInYear(1968) == 366
 	c := DaysInYear(2000) == 365
 	d := DaysInYear(2020) == 366
-	if !(a && b && c && d){
+	if !(a && b && c && d) {
 		t.Errorf("DaysInYear() returned wrong days 365 or 366")
 	}
 }
-

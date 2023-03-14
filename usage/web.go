@@ -3,17 +3,40 @@
 package main
 
 import (
+	"bytes"
+	"embed"
 	"fmt"
 	"log"
 	"math"
 	"net/http"
 	"os"
+	"strconv"
 
 	k "github.com/chlachula/klementinum"
 	"github.com/chlachula/klementinum/data"
 )
 
 var tStat k.TStat
+var homeLink = "<a href=\"/\">Home</a><hr/>\n"
+var formExit string = `<form action="/" method="post" name="exit"><input type="submit" value="Exit"></form>`
+var page1 string = `<!DOCTYPE html>
+<html>
+ <head>
+ <title>Klementinum %s</title>
+  <style>
+   .center {
+    text-align: center
+   }
+  </style>
+ </head>
+<body>
+<div class="center">
+%s
+<h2>%s</h2> 
+  %s
+</div>
+</body>
+</html>`
 
 func avgTempsString() string {
 	s := ""
@@ -75,63 +98,83 @@ func temperatureHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page1 := `<!DOCTYPE html>
-<html>
- <head>
-  <style>
-   .center {
-    text-align: center
-   }
-  </style>
- </head>
-<body>
-<div class="center">
-<a href=\"/\">Home</a><hr/>
-<h2>%s</h2>
- <svg width="800" height="800">
-  %s
- </svg>
-</div>
-</body>
-</html>`
 	svg1 := `<circle cx="400" cy="400" r="370" stroke="green" stroke-width="40" fill="yellow" />`
-	svg1 = makeDodecagon(400, 400, 200.0)
+	svg1 = `\n<svg width="800" height="800">\n` + makeDodecagon(400, 400, 200.0) + ` \n</svg>\n`
 	minmax := minMaxString()
-	page := fmt.Sprintf(page1, minmax, svg1)
+	page := fmt.Sprintf(page1, "temperature", "<a href=\"/\">Home</a><hr/>", minmax, svg1)
 	fmt.Fprintf(w, page)
 }
-func exitHandler(w http.ResponseWriter, r *http.Request) {
-	os.Exit(0)
+
+//go:embed to_embed/img/Klementinum2023-0112-0953-1465-600x800dpi72q40.jpg
+var embededSingleImage []byte
+
+//go:embed to_embed/img/*.jpg
+var embededImgDir embed.FS
+
+func embedHandler(w http.ResponseWriter, r *http.Request) {
+	img := "\n<img src=\"/embeded_single_Klementinum_image\" />"
+	page := fmt.Sprintf(page1, "picture", homeLink, "Klementinum tower in Prague, Czechia", img)
+	fmt.Fprintf(w, page)
+}
+
+func embededSingleImageHandler(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Write(bytes.NewBufferString("Content-Type: image/jpeg"))
+	rw.Header().Write(bytes.NewBufferString("Content-Length: " + strconv.Itoa(len(embededSingleImage))))
+	rw.Write(embededSingleImage)
+}
+func getembededSingleImage(rw http.ResponseWriter, r *http.Request) {
+
+	fname := r.URL.Query().Get("name")
+
+	data, err := embededImgDir.ReadFile("images" + fname)
+	if err != nil {
+		rw.Write([]byte("Error occured : " + err.Error()))
+		return
+	}
+
+	rw.Header().Write(bytes.NewBufferString("Content-Type: image/jpg"))
+	rw.Header().Write(bytes.NewBufferString("Content-Length: " + strconv.Itoa(len(data))))
+	rw.Write(data)
 }
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `<h1>Home<br/>
-	<a href="/hello">Hello</a><br/>
-	<a href="/temp">Temperature</a><br/>
-	<a href="/years_avg_temps">Average Temperatures</a><br/>
-	<a href="/exit">Exit</a></h1>`)
+	if r.Method == "POST" {
+		print("... exiting via web / exit button")
+		os.Exit(0)
+	} else {
+		page := fmt.Sprintf(page1, "home", "<a href=\"/\">Home</a><hr/>", "Home",
+			`      <h1><a href="/embeded">Klementinum tower picture</a><br/>
+		<a href="/temp">Temperature</a><br/>
+		<a href="/years_avg_temps">Average Temperatures</a></h1>
+		`+formExit)
+		fmt.Fprintf(w, page)
+	}
 }
 func y_avg_tempsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<a href=\"/\">Home</a><hr/><h1>Average temperatures</h1>")
 	fmt.Fprintf(w, avgTempsString())
-	fmt.Fprintf(w, k.svgAverage())
+	fmt.Fprintf(w, "<br/>\n")
+	fmt.Fprintf(w, k.SVG_average())
 
-}
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<a href=\"/\">Home</a><hr/><h1>Hello World!</h1>")
 }
 
 func main() {
 	fmt.Println("Start of program")
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(path) // for example /home/user
 	tStat = k.TemperatureStatistics(data.TemperatureRecords())
 
 	//mux := http.NewServeMux()
 	http.HandleFunc("/years_avg_temps", y_avg_tempsHandler)
+	http.HandleFunc("/embeded", embedHandler)
+	//http.Handle("/embeded", http.FileServer(http.FS(embededImgDir)))
+	http.HandleFunc("/embeded_single_Klementinum_image", embededSingleImageHandler)
 	http.HandleFunc("/temp", temperatureHandler)
-	http.HandleFunc("/exit", exitHandler)
-	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/", rootHandler)
 
-	fmt.Printf("Starting server at port 8080\n")
+	fmt.Printf("Starting server at port 8080 ...\n")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}

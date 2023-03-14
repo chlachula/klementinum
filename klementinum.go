@@ -18,6 +18,30 @@ type TStat = struct {
 	YearTavg []float32
 }
 
+func Equal_TStat(a, b TStat) bool {
+	if a.Year1 != b.Year1 {
+		return false
+	}
+	if a.YearEnd != b.YearEnd {
+		return false
+	}
+	if a.MinT.D != b.MinT.D || a.MinT.M != b.MinT.M || a.MinT.Y != b.MinT.Y {
+		return false
+	}
+	if a.MaxT.D != b.MaxT.D || a.MaxT.M != b.MaxT.M || a.MaxT.Y != b.MaxT.Y {
+		return false
+	}
+	if len(a.YearTavg) != len(b.YearTavg) {
+		return false
+	}
+	for i, x := range a.YearTavg {
+		if x != b.YearTavg[i] {
+			return false
+		}
+	}
+
+	return true
+}
 func DaysInYear(y int) int {
 	yDays := 365
 	if y%4 == 0 && y != 2000 {
@@ -50,7 +74,7 @@ func TemperatureStatistics(allData []data.TempRecord) TStat {
 	return s
 }
 
-func svgAverage() string {
+func SVG_average() string {
 	svgFormat := `<svg
  xmlns="http://www.w3.org/2000/svg" 
  xmlns:xlink="http://www.w3.org/1999/xlink" 
@@ -60,19 +84,18 @@ func svgAverage() string {
  <defs>
 	<style>
 	   svg { background-color: lightgray; }
-	   text { font-size: 0.9px; }
 	</style>
-	<pattern id="bg_image" patternUnits="userSpaceOnUse" width="500" height="500">
-	   <image href="SolRootRiverPark1.jpg" x="0" y="0" width="500" height="500" />
+	<pattern id="bg_image" patternUnits="userSpaceOnUse" width="100" height="100">
+	   <image href="/embeded_single_Klementinum_image" x="0" y="0" width="30" height="40" />
 	</pattern>
  </defs>
  <g id="main">
-    <rect x="0" y="0" width="100" height="300" fill="url(#bg_image)" stroke="none" />
-    <text x="10" y="10" >Average year temperature: %.1f°C</text>
-	<path d="M0,150 l0,600" stroke="black" stroke-width="10" />
+    <rect x="0" y="0" width="600" height="300" fill="url(#bg_image)" stroke="none" />
+    <text x="10" y="30" >Average year temperature: %.1f°C</text>
+	<path d="M0,150 l600,0" stroke="black" stroke-width="10" />
  </g>
  %s
 </svg>
 `
-	return fmt.Sprintf(svgFormat, 9.9)
+	return fmt.Sprintf(svgFormat, 9.9, "")
 }
