@@ -38,6 +38,45 @@ var page1 string = `<!DOCTYPE html>
 </body>
 </html>`
 
+// func avgTemps(tStat TStat) TAverageDifferences {
+func getAverageTemperature(tStat k.TStat) float32 {
+	count := 0
+	var sum float32
+	for _, avgT := range tStat.YearTavg {
+		count += 1
+		sum += avgT
+	}
+	return sum / float32(count)
+}
+func averageTemperatureString() string {
+	s := ""
+	for i, avgT := range tStat.YearTavg {
+		year := i + tStat.Year1
+		s += fmt.Sprintf("%d:%.1f ", year, avgT)
+	}
+	s += fmt.Sprint("\n<br/>\n")
+	return s
+}
+func TempDiffsToAverage(average float32, tStat k.TStat) []float32 {
+	diffs := make([]float32, len(tStat.YearTavg))
+	for i, avgT := range tStat.YearTavg {
+		delta := avgT - average
+		diffs[i] = delta
+	}
+	return diffs
+}
+func tempsDiffsString(diffs []float32) string {
+	s := ""
+	for i, delta := range diffs {
+		year := i + tStat.Year1
+		if delta > 0.0 {
+			s += fmt.Sprintf("<b>%d:%.1f</b> ", year, delta)
+		} else {
+			s += fmt.Sprintf("%d:%.1f ", year, delta)
+		}
+	}
+	return s
+}
 func avgTempsString() string {
 	s := ""
 	count := 0
@@ -48,11 +87,11 @@ func avgTempsString() string {
 		year := i + tStat.Year1
 		s += fmt.Sprintf("%d:%.1f ", year, avgT)
 	}
-	a := sum / float32(count)
-	s += fmt.Sprintf("\n<br/><h2>Average temperature %.2f°C<br/>Relative differences in years %d .. %d</h2><br/>\n", a, tStat.Year1, tStat.YearEnd)
+	average := sum / float32(count)
+	s += fmt.Sprintf("\n<br/><h2>Average temperature %.2f°C<br/>Relative differences in years %d .. %d</h2><br/>\n", average, tStat.Year1, tStat.YearEnd)
 	for i, avgT := range tStat.YearTavg {
 		year := i + tStat.Year1
-		delta := avgT - a
+		delta := avgT - average
 		if delta > 0.0 {
 			s += fmt.Sprintf("<b>%d:%.1f</b> ", year, delta)
 		} else {
@@ -62,6 +101,7 @@ func avgTempsString() string {
 	}
 	return s
 }
+
 func minMaxString() string {
 	return fmt.Sprintf("%d years since %d to %d: Min %v Max %v", tStat.YearEnd-tStat.Year1+1, tStat.Year1, tStat.YearEnd, tStat.MinT, tStat.MaxT)
 }
@@ -93,10 +133,9 @@ func temperatureHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	svg1 := `<circle cx="400" cy="400" r="370" stroke="green" stroke-width="40" fill="yellow" />`
-	svg1 = `\n<svg width="800" height="800">\n` + makeDodecagon(400, 400, 200.0) + ` \n</svg>\n`
+	svg1 := `\n<svg width="800" height="800">\n` + makeDodecagon(400, 400, 200.0) + ` \n</svg>\n`
 	minmax := minMaxString()
-	page := fmt.Sprintf(page1, "temperature", "<a href=\"/\">Home</a><hr/>", minmax, svg1)
+	page := fmt.Sprintf(page1, "temperature", homeLink, minmax, svg1)
 	fmt.Fprint(w, page)
 }
 
@@ -145,9 +184,14 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func y_avg_tempsHandler(w http.ResponseWriter, r *http.Request) {
+	average := getAverageTemperature(tStat)
+	diffs := TempDiffsToAverage(average, tStat)
 	page := fmt.Sprintf(page1, "averate temperatures", homeLink,
 		fmt.Sprintf("Average temperatures in years %d .. %d", tStat.Year1, tStat.YearEnd),
-		avgTempsString()+"<br/>\n"+k.SVG_average())
+		averageTemperatureString()+
+			fmt.Sprintf("\n<br/><h2>Average temperature %.2f°C<br/>Relative differences in years %d .. %d</h2><br/>\n", average, tStat.Year1, tStat.YearEnd)+
+			tempsDiffsString(diffs)+
+			"<br/>\n"+k.SVG_average(average))
 	fmt.Fprint(w, page)
 }
 

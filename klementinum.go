@@ -42,6 +42,12 @@ func Equal_TStat(a, b TStat) bool {
 
 	return true
 }
+
+type TAverageDifferences = struct {
+	Average float32
+	Diff    []float32
+}
+
 func DaysInYear(y int) int {
 	yDays := 365
 	if y%4 == 0 && y != 2000 {
@@ -74,7 +80,7 @@ func TemperatureStatistics(allData []data.TempRecord) TStat {
 	return s
 }
 
-func SVG_average() string {
+func SVG_average(average float32) string {
 	svgFormat := `<svg
  xmlns="http://www.w3.org/2000/svg" 
  xmlns:xlink="http://www.w3.org/1999/xlink" 
@@ -97,5 +103,5 @@ func SVG_average() string {
  %s
 </svg>
 `
-	return fmt.Sprintf(svgFormat, 9.9, "")
+	return fmt.Sprintf(svgFormat, average, "")
 }
