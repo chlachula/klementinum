@@ -186,7 +186,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		print("... exiting via web / exit button")
 		os.Exit(0)
 	} else {
-		page := fmt.Sprintf(page1, "home", "<a href=\"/\">Home</a><hr/>", "Home",
+		page := fmt.Sprintf(page1, "home", "Home<hr/>", "",
 			`      <h1><a href="/embeded">Klementinum tower picture</a><br/>
 		<a href="/temp">Temperature</a><br/>
 		<a href="/years_avg_temps">Average Temperatures</a></h1>
