@@ -23,6 +23,7 @@ var page1 string = `<!DOCTYPE html>
 <html>
  <head>
  <title>Klementinum %s</title>
+ <link rel="icon" type="image/ico" href="/favicon.svg">
   <style>
    .center {
     text-align: center
@@ -170,6 +171,16 @@ func getembededSingleImage(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Write(bytes.NewBufferString("Content-Length: " + strconv.Itoa(len(data))))
 	rw.Write(data)
 }
+func faviconSvgHandler(w http.ResponseWriter, r *http.Request) {
+	svg := `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	viewBox="0 0 16 16" width="16" height="16">
+	<title>Favicon</title>
+	<circle cx="8" cy="8" r="7" stroke="green" stroke-width="3" fill="yellow" />
+	</svg>`
+	w.Header().Write(bytes.NewBufferString("Content-Type: image/svg+xml .svg .svgz"))
+	w.Header().Write(bytes.NewBufferString("Content-Length: " + strconv.Itoa(len(svg))))
+	fmt.Fprint(w, svg)
+}
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		print("... exiting via web / exit button")
@@ -191,7 +202,7 @@ func y_avg_tempsHandler(w http.ResponseWriter, r *http.Request) {
 		averageTemperatureString()+
 			fmt.Sprintf("\n<br/><h2>Average temperature %.2f°C<br/>Relative differences in years %d .. %d</h2><br/>\n", average, tStat.Year1, tStat.YearEnd)+
 			tempsDiffsString(diffs)+
-			"<br/>\n"+k.SVG_average(average))
+			"<br/>\n"+k.SVG_average(average, diffs, tStat.MaxT.T-tStat.MinT.T))
 	fmt.Fprint(w, page)
 }
 
@@ -209,6 +220,7 @@ func main() {
 	http.HandleFunc("/embeded", embedHandler)
 	//http.Handle("/embeded", http.FileServer(http.FS(embededImgDir)))
 	http.HandleFunc("/embeded_single_Klementinum_image", embededSingleImageHandler)
+	http.HandleFunc("/favicon.svg", faviconSvgHandler)
 	http.HandleFunc("/temp", temperatureHandler)
 	http.HandleFunc("/", rootHandler)
 
