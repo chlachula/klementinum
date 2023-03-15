@@ -23,7 +23,8 @@ var page1 string = `<!DOCTYPE html>
 <html>
  <head>
  <title>Klementinum %s</title>
- <link rel="icon" type="image/ico" href="/favicon.svg">
+ <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+ <link rel="icon" href="/embeded_favicon1" type="ico">
   <style>
    .center {
     text-align: center
@@ -143,6 +144,9 @@ func temperatureHandler(w http.ResponseWriter, r *http.Request) {
 //go:embed to_embed/img/Klementinum2023-0112-0953-1465-600x800dpi72q40.jpg
 var embededSingleImage []byte
 
+//go:embed to_embed/img/favicon1.ico
+var embededFavicon1 []byte
+
 //go:embed to_embed/img/*.jpg
 var embededImgDir embed.FS
 
@@ -156,6 +160,11 @@ func embededSingleImageHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Write(bytes.NewBufferString("Content-Type: image/jpeg"))
 	rw.Header().Write(bytes.NewBufferString("Content-Length: " + strconv.Itoa(len(embededSingleImage))))
 	rw.Write(embededSingleImage)
+}
+func embededFavicon1Handler(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Write(bytes.NewBufferString("Content-Type: image/ico"))
+	rw.Header().Write(bytes.NewBufferString("Content-Length: " + strconv.Itoa(len(embededFavicon1))))
+	rw.Write(embededFavicon1)
 }
 func getembededSingleImage(rw http.ResponseWriter, r *http.Request) {
 
@@ -220,6 +229,7 @@ func main() {
 	http.HandleFunc("/embeded", embedHandler)
 	//http.Handle("/embeded", http.FileServer(http.FS(embededImgDir)))
 	http.HandleFunc("/embeded_single_Klementinum_image", embededSingleImageHandler)
+	http.HandleFunc("/embeded_favicon1", embededFavicon1Handler)
 	http.HandleFunc("/favicon.svg", faviconSvgHandler)
 	http.HandleFunc("/temp", temperatureHandler)
 	http.HandleFunc("/", rootHandler)
