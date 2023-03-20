@@ -80,21 +80,22 @@ func TemperatureStatistics(allData []data.TempRecord) TStat {
 	return s
 }
 
-func SVG_average(average float32, diffs []float32, tempRange float32) string {
-	width := 600
-	height := 300
+func SVG_average(width, height int, average float32, diffs []float32, tempRange float32) string {
+	wGrid := int(float32(width) * 0.9)
+	hGrid := int(float32(height) * 0.9)
 	s := ""
 	y0 := float32(height) / 2.0
-	deltaX := float32(width) / (float32(len(diffs)) + 1)
+	x0 := float32(width) * 0.05
+	deltaX := float32(wGrid) / (float32(len(diffs)) + 1)
 	for i, deltaT := range diffs {
 		color := "red"
 		if deltaT < 0 {
 			color = "blue"
 		}
-		p := float32(height) / tempRange
+		p := float32(hGrid) / tempRange
 		deltaY := deltaT * p
 		s += fmt.Sprintf("<path d=\"M%.1f,%.1f v%.1fh%.1fv%.1fz \" fill=\"%s\" stroke=\"none\" stroke-width=\"0\" />\n",
-			float32(i)*deltaX, y0, -deltaY, deltaX, deltaY, color)
+			x0+float32(i)*deltaX, y0, -deltaY, deltaX, deltaY, color)
 	}
 	svgFormat := `<svg
  xmlns="http://www.w3.org/2000/svg" 
@@ -111,8 +112,8 @@ func SVG_average(average float32, diffs []float32, tempRange float32) string {
 	</pattern>
  </defs>
  <g id="main">
-    <rect x="0" y="0" width="600" height="300" fill="none" stroke="none" />
-    <text x="10" y="30" >Average year temperature: %.1f°C</text>
+    <!--rect x="0" y="0" width="600" height="300" fill="none" stroke="none" /-->
+    <text x="50%%" y="30" text-anchor="middle">Average year temperature: %.1f°C</text>
  </g>
  %s
 </svg>

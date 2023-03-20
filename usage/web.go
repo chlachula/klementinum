@@ -211,7 +211,7 @@ func y_avg_tempsHandler(w http.ResponseWriter, r *http.Request) {
 		averageTemperatureString()+
 			fmt.Sprintf("\n<br/><h2>Average temperature %.2f°C<br/>Relative differences in years %d .. %d</h2><br/>\n", average, tStat.Year1, tStat.YearEnd)+
 			tempsDiffsString(diffs)+
-			"<br/>\n"+k.SVG_average(average, diffs, tStat.MaxT.T-tStat.MinT.T))
+			"<br/>\n"+k.SVG_average(1000, 400, average, diffs, tStat.MaxT.T-tStat.MinT.T))
 	fmt.Fprint(w, page)
 }
 
