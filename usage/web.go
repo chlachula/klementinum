@@ -1,4 +1,6 @@
-/* Example how to create, read and remove a PKLM sample csv file
+/*
+ * Web application to display Klementinum temperature records,
+ * especially avarage temperatures
  */
 package main
 

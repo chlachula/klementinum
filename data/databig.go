@@ -3,7 +3,7 @@ package data
 /*
 data source https://www.chmi.cz/files/portal/docs/meteo/ok/files/PKLM_pro_portal.xlsx
 
-sed 's|\(....\),\([^,]*\),\([^,]*\),.\([^,]*\),\([^,"]*\).*| {Y:\1,M:\2,D:\3,T:\4.\5},|' PKLM_pro_portal-xlsx-data.csv >  klementinum_data.go
+sed 's|\(....\),\([^,]*\),\([^,]*\),.\([^,]*\),\([^,"]*\).*| {Y:\1,M:\2,D:\3,T:\4.\5},|' PKLM_pro_portal-xlsx-data.csv >  klementinum_databig.go
 
 The first line with column names was removed
 */

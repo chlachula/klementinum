@@ -1,4 +1,5 @@
-/* Example how to create, read and remove a PKLM sample csv file
+/*
+ * Functions for processing Klementinum temperature records.
  */
 package klementinum
 
