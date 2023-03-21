@@ -1,10 +1,8 @@
 package data
 
 /*
-data source https://www.chmi.cz/files/portal/docs/meteo/ok/files/PKLM_pro_portal.xlsx
-
-The first line with column names was removed
-*/
+ * Klementinum temperature records type
+ */
 
 type TempRecord struct {
 	Y int
