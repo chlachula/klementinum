@@ -1,5 +1,6 @@
 package klementinum
 
+//  go test -v  #Verbose output
 import (
 	"testing"
 
@@ -32,12 +33,22 @@ func TestTemperatureStatistics(t *testing.T) {
 	}
 
 }
-func DaysInYearTest(t *testing.T) {
+
+func TestDaysInYear(t *testing.T) {
 	a := DaysInYear(1775) == 365
 	b := DaysInYear(1968) == 366
 	c := DaysInYear(2000) == 365
 	d := DaysInYear(2020) == 366
 	if !(a && b && c && d) {
 		t.Errorf("DaysInYear() returned wrong days 365 or 366")
+	}
+}
+
+func TestLengthOfTheTemperatureRecords(t *testing.T) {
+	records := data.TemperatureRecords()
+	want := 90215
+	got := len(records)
+	if want != got {
+		t.Errorf("unexpected number of the temperature records: %d instead of expected %d", got, want)
 	}
 }
