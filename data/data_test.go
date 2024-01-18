@@ -1,5 +1,6 @@
 package data
 
+//go test -v  # Verbose test
 import "testing"
 
 func gregorianToJulianDateNumber(Y int, M int, D int) int {
@@ -22,8 +23,8 @@ func TestDataFirstRecord(t *testing.T) {
 	wantD := 1
 	d := TemperatureRecords()
 	r := d[0]
-	if r.y != wantY || r.m != wantM || r.d != wantD {
-		t.Errorf("The first record date is = %04d-%02d-%02d, want %04d-%02d-%02d", r.y, r.m, r.d, wantY, wantM, wantD)
+	if r.Y != wantY || r.M != wantM || r.D != wantD {
+		t.Errorf("The first record date is = %04d-%02d-%02d, want %04d-%02d-%02d", r.Y, r.Y, r.D, wantY, wantM, wantD)
 	}
 }
 func TestDataLastRecord(t *testing.T) {
@@ -34,27 +35,27 @@ func TestDataLastRecord(t *testing.T) {
 	d := TemperatureRecords()
 	i := len(d) - 1
 	r := d[i]
-	if r.y != wantY || r.m != wantM || r.d != wantD {
-		t.Errorf("The last record date is = %04d-%02d-%02d, want %04d-%02d-%02d", r.y, r.m, r.d, wantY, wantM, wantD)
+	if r.Y != wantY || r.M != wantM || r.D != wantD {
+		t.Errorf("The last record date is = %04d-%02d-%02d, want %04d-%02d-%02d", r.Y, r.M, r.D, wantY, wantM, wantD)
 	}
 }
 func TestDataAllRecords(t *testing.T) {
 	d := TemperatureRecords()
 	// this is just test of the range functionality
 	for i, r := range d {
-		if r.y != d[i].y || r.m != d[i].m || r.d != d[i].d {
-			t.Errorf("Unexpected record date %04d-%02d-%02d with index %d", r.y, r.m, r.d, i)
+		if r.Y != d[i].Y || r.M != d[i].M || r.D != d[i].D {
+			t.Errorf("Unexpected record date %04d-%02d-%02d with index %d", r.Y, r.M, r.D, i)
 			return
 		}
 	}
 	r := d[0]
 	//sequence date test
-	jdnPrev := gregorianToJulianDateNumber(r.y, r.m, r.d)
+	jdnPrev := gregorianToJulianDateNumber(r.Y, r.M, r.D)
 	for i := 1; i < len(d)-1; i++ {
 		r = d[i]
-		jdn := gregorianToJulianDateNumber(r.y, r.m, r.d)
+		jdn := gregorianToJulianDateNumber(r.Y, r.M, r.D)
 		if jdn != jdnPrev+1 {
-			t.Errorf("Bronken julian date sequence at date %04d-%02d-%02d, expected: %d, got: %d", r.y, r.m, r.d, (jdnPrev + 1), jdn)
+			t.Errorf("Bronken julian date sequence at date %04d-%02d-%02d, expected: %d, got: %d", r.Y, r.M, r.D, (jdnPrev + 1), jdn)
 			return
 		}
 		jdnPrev = jdn
